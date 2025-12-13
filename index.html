@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>lighthvhsec</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: black;
+  color: #00ff00;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* SPLASH */
+#splash {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  cursor: pointer;
+}
+#splash h1 {
+  animation: blink 1s infinite;
+}
+
+/* MATRIX */
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* CENTER */
+.container {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.box {
+  border: 1px solid #00ff00;
+  padding: 30px;
+  width: 90%;
+  max-width: 420px;
+  background: rgba(0,0,0,0.75);
+  box-shadow: 0 0 30px #00ff00;
+}
+
+/* GLITCH */
+.glitch {
+  font-size: 32px;
+  text-align: center;
+  position: relative;
+  transition: 0.2s;
+}
+.glitch.hover {
+  text-shadow: 3px 0 red, -3px 0 cyan;
+}
+
+/* CURSOR */
+.cursor::after {
+  content: "_";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="splash">
+  <h1>ENTER TO ACCESS</h1>
+</div>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+  <div class="box">
+    <div id="title" class="glitch">lighthvhsec</div>
+    <p id="type"></p>
+    <p id="scan"></p>
+    <p class="cursor"></p>
+  </div>
+</div>
+
+<script>
+/* SPLASH */
+document.getElementById("splash").onclick = () => {
+  document.getElementById("splash").style.display = "none";
+  if (navigator.vibrate) navigator.vibrate(200);
+};
+
+/* GLITCH HOVER */
+const title = document.getElementById("title");
+title.onmouseenter = () => title.classList.add("hover");
+title.onmouseleave = () => title.classList.remove("hover");
+
+/* TYPING */
+const lines = [
+  "Access granted...",
+  "Cyber security active",
+  "Initializing scan..."
+];
+let i = 0, j = 0;
+const el = document.getElementById("type");
+
+function type() {
+  if (i < lines.length) {
+    if (j < lines[i].length) {
+      el.innerHTML += lines[i][j++];
+      setTimeout(type, 40);
+    } else {
+      el.innerHTML += "<br>";
+      i++; j = 0;
+      setTimeout(type, 400);
+    }
+  } else fakeScan();
+}
+type();
+
+/* FAKE SCAN */
+function fakeScan() {
+  const scan = document.getElementById("scan");
+  const ip = "192.168." + Math.floor(Math.random()*255) + "." + Math.floor(Math.random()*255);
+  scan.innerHTML =
+    "IP: " + ip + "<br>" +
+    "Device: " + navigator.platform + "<br>" +
+    "Status: ONLINE";
+}
+
+/* MATRIX */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+const letters = "01";
+const size = 14;
+const cols = canvas.width / size;
+const drops = Array(Math.floor(cols)).fill(1);
+
+function matrix() {
+  ctx.fillStyle = "rgba(0,0,0,0.05)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "#00ff00";
+  ctx.font = size+"px monospace";
+  drops.forEach((y, i) => {
+    ctx.fillText(letters[Math.random()>0.5?1:0], i*size, y*size);
+    if (y*size > canvas.height && Math.random() > 0.975) drops[i]=0;
+    drops[i]++;
+  });
+}
+setInterval(matrix, 33);
+</script>
+
+</body>
+</html>

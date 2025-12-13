@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>lighthvh</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:black;
+  color:#00ff00;
+  font-family:monospace;
+  overflow:hidden;
+}
+
+/* SPLASH */
+#splash{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:black;z-index:10;cursor:pointer;
+}
+#splash h1{animation:blink 1s infinite}
+
+/* MATRIX */
+canvas{position:fixed;inset:0;z-index:0}
+
+/* CENTER */
+.container{
+  position:relative;z-index:1;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+}
+.box{
+  border:1px solid #00ff00;
+  padding:30px;width:90%;max-width:420px;
+  background:rgba(0,0,0,.75);
+  box-shadow:0 0 30px #00ff00;
+}
+
+/* TITLE */
+.glitch{
+  font-size:32px;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+/* TEXT */
+p{margin-top:8px}
+
+/* FOOTER TEXT */
+.footer{
+  margin-top:20px;
+  font-size:12px;
+  opacity:0.7;
+  text-align:center;
+}
+
+/* CURSOR */
+.cursor::after{content:"_";animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+</style>
+</head>
+
+<body>
+
+<div id="splash"><h1>ENTER TO ACCESS</h1></div>
+<canvas id="matrix"></canvas>
+
+<div class="container">
+  <div class="box">
+    <div class="glitch">lighthvh</div>
+    <p id="type"></p>
+    <p class="cursor"></p>
+    <div class="footer">nothing visible is real</div>
+  </div>
+</div>
+
+<script>
+/* SPLASH */
+document.getElementById("splash").onclick=()=>{
+  document.getElementById("splash").style.display="none";
+  if(navigator.vibrate) navigator.vibrate(200);
+};
+
+/* DEVICE SIMPLE */
+function getDevice(){
+  const ua=navigator.userAgent;
+  if(/android/i.test(ua)) return "Android";
+  if(/iphone|ipad|ipod/i.test(ua)) return "iOS";
+  if(/windows/i.test(ua)) return "Windows";
+  if(/mac/i.test(ua)) return "MacOS";
+  return "Unknown";
+}
+
+/* TYPING DATA */
+let lines=[];
+let i=0,j=0;
+const el=document.getElementById("type");
+
+async function prepare(){
+  let ip="unknown";
+  try{
+    const r=await fetch("https://api.ipify.org?format=json");
+    ip=(await r.json()).ip;
+  }catch{}
+
+  lines=[
+    "Access granted...",
+    "System online",
+    "Device: "+getDevice(),
+    "IP: "+ip
+  ];
+  type();
+}
+
+/* TYPING EFFECT */
+function type(){
+  if(i<lines.length){
+    if(j<lines[i].length){
+      el.innerHTML+=lines[i][j++];
+      setTimeout(type,40);
+    }else{
+      el.innerHTML+="<br>";
+      i++;j=0;
+      setTimeout(type,400);
+    }
+  }
+}
+prepare();
+
+/* MATRIX */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;canvas.height=innerHeight;
+const letters="01",size=14,cols=canvas.width/size;
+const drops=Array(Math.floor(cols)).fill(1);
+
+setInterval(()=>{
+  ctx.fillStyle="rgba(0,0,0,.05)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#00ff00";
+  ctx.font=size+"px monospace";
+  drops.forEach((y,i)=>{
+    ctx.fillText(letters[Math.random()>0.5?1:0],i*size,y*size);
+    if(y*size>canvas.height&&Math.random()>0.975) drops[i]=0;
+    drops[i]++;
+  });
+},33);
+</script>
+
+</body>
+</html>
